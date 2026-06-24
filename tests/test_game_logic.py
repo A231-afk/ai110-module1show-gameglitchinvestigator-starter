@@ -1,4 +1,9 @@
-from logic_utils import check_guess, parse_guess, update_score
+from logic_utils import (
+    check_guess,
+    get_range_for_difficulty,
+    parse_guess,
+    update_score,
+)
 
 def test_winning_guess():
     # If the secret is 50 and guess is 50, it should be a win
@@ -70,3 +75,16 @@ def test_too_high_subtracts_five():
 def test_too_low_subtracts_five():
     assert update_score(100, "Too Low", 2) == 95
     assert update_score(100, "Too Low", 3) == 95
+
+
+# FIX: Claude helped move get_range_for_difficulty into logic_utils.py; these tests
+# verify the difficulty ranges.
+
+def test_easy_range():
+    assert get_range_for_difficulty("Easy") == (1, 20)
+
+def test_normal_range():
+    assert get_range_for_difficulty("Normal") == (1, 100)
+
+def test_hard_range():
+    assert get_range_for_difficulty("Hard") == (1, 50)
