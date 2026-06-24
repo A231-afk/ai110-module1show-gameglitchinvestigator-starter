@@ -1,4 +1,4 @@
-from logic_utils import check_guess
+from logic_utils import check_guess, parse_guess, update_score
 
 def test_winning_guess():
     # If the secret is 50 and guess is 50, it should be a win
@@ -31,3 +31,42 @@ def test_exact_match_wins():
     # check_guess(42, 42) should be "Win"
     outcome, message = check_guess(42, 42)
     assert outcome == "Win"
+
+
+# FIX: Claude helped refactor parse_guess/update_score into logic_utils.py;
+# these tests verify the input-parsing and incorrect-score repairs.
+
+def test_parse_whole_number_string():
+    ok, value, err = parse_guess("42")
+    assert ok is True
+    assert value == 42
+    assert err is None
+
+def test_parse_blank_rejected():
+    ok, value, err = parse_guess("")
+    assert ok is False
+    assert err == "Enter a guess."
+
+def test_parse_whitespace_rejected():
+    ok, value, err = parse_guess("   ")
+    assert ok is False
+    assert err == "Enter a guess."
+
+def test_parse_nonnumeric_rejected():
+    ok, value, err = parse_guess("hello")
+    assert ok is False
+    assert value is None
+
+def test_parse_decimal_rejected():
+    ok, value, err = parse_guess("5.9")
+    assert ok is False
+    assert value is None
+
+def test_too_high_subtracts_five():
+    # Must subtract regardless of attempt number (old bug added on even attempts).
+    assert update_score(100, "Too High", 2) == 95
+    assert update_score(100, "Too High", 3) == 95
+
+def test_too_low_subtracts_five():
+    assert update_score(100, "Too Low", 2) == 95
+    assert update_score(100, "Too Low", 3) == 95
