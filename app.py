@@ -140,13 +140,8 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
-        # FIXME: Turning the secret into a string causes incorrect comparisons.
-        if st.session_state.attempts % 2 == 0:
-            secret = str(st.session_state.secret)
-        else:
-            secret = st.session_state.secret
-
-        outcome, message = check_guess(guess_int, secret)
+        # Keep both values numeric so comparisons in check_guess stay numeric (int vs int).
+        outcome, message = check_guess(guess_int, st.session_state.secret)
 
         if show_hint:
             st.warning(message)
