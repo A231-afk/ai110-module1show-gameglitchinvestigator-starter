@@ -51,7 +51,27 @@ if "status" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state.history = []
 
+if "difficulty" not in st.session_state:
+    # FIX: Claude helped repair the incomplete session-state reset — remember the
+    # active difficulty so we can detect when the user switches it.
+    st.session_state.difficulty = difficulty
+
+# FIX: Claude helped repair the incomplete session-state reset — changing difficulty
+# now resets every game-state value and redraws the secret inside the new range.
+if difficulty != st.session_state.difficulty:
+    st.session_state.difficulty = difficulty
+    st.session_state.attempts = 0
+    st.session_state.score = 0
+    st.session_state.status = "playing"
+    st.session_state.history = []
+    st.session_state.secret = random.randint(low, high)
+
 st.subheader("Make a guess")
+
+# FIX: Claude helped fix the lost confirmation — show the New Game message once
+# after the rerun, then clear the flag so it doesn't persist.
+if st.session_state.pop("new_game_message", False):
+    st.success("New game started.")
 
 # FIX: Claude helped move state-dependent displays after game processing so the UI no longer lags one interaction behind.
 status_panel = st.empty()
@@ -84,9 +104,16 @@ with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
 if new_game:
+    # FIX: Claude helped repair the incomplete session-state reset — New Game now
+    # clears every game-state value and draws the secret from the selected range.
     st.session_state.attempts = 0
-    st.session_state.secret = random.randint(1, 100)
-    st.success("New game started.")
+    st.session_state.score = 0
+    st.session_state.status = "playing"
+    st.session_state.history = []
+    st.session_state.secret = random.randint(low, high)
+    # FIX: Claude helped fix the lost confirmation — st.rerun() discarded the
+    # immediate st.success(), so stash a flash flag and render it after the rerun.
+    st.session_state.new_game_message = True
     st.rerun()
 
 if st.session_state.status != "playing":
