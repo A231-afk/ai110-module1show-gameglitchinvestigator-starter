@@ -35,6 +35,7 @@ def check_guess(guess, secret):
 
     try:
         if guess > secret:
+             # FIXME: The hint direction is backwards here.
             return "Too High", "📈 Go HIGHER!"
         else:
             return "Too Low", "📉 Go LOWER!"
@@ -155,6 +156,7 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
+        # FIXME: Turning the secret into a string causes incorrect comparisons.
         if st.session_state.attempts % 2 == 0:
             secret = str(st.session_state.secret)
         else:
