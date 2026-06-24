@@ -1,54 +1,46 @@
-# 🎮 Game Glitch Investigator: The Impossible Guesser
+## 🎮 Game Purpose
 
-## 🚨 The Situation
+Game Glitch Investigator is a Streamlit number-guessing game in which the player selects a difficulty and attempts to find a randomly generated secret number. The game provides higher or lower hints, tracks attempts and score, stores guess history, and ends when the player wins or runs out of attempts.
 
-You asked an AI to build a simple "Number Guessing Game" using Streamlit.
-It wrote the code, ran away, and now the game is unplayable. 
+## 🐛 Bugs Found
 
-- You can't win.
-- The hints lie to you.
-- The secret number seems to have commitment issues.
+The original game contained several reproducible issues:
 
-## 🛠️ Setup
+* Higher and lower hint directions were reversed.
+* The secret was converted into a string on alternating attempts, causing unreliable comparisons.
+* The attempt counter started at the wrong value.
+* Some incorrect guesses increased the score.
+* Decimal input was silently converted into an integer.
+* Invalid and out-of-range input could consume attempts.
+* Score, attempts, and history appeared one interaction behind.
+* New Game did not fully reset the game.
+* Changing difficulty did not fully reset state.
+* The displayed range was hardcoded instead of matching the selected difficulty.
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run the broken app: `python -m streamlit run app.py`
+## 🛠️ Fixes Applied
 
-## 🕵️‍♂️ Your Mission
-
-1. **Play the game.** Open the "Developer Debug Info" tab in the app to see the secret number. Try to win.
-2. **Find the State Bug.** Why does the secret number change every time you click "Submit"? Ask ChatGPT: *"How do I keep a variable from resetting in Streamlit when I click a button?"*
-3. **Fix the Logic.** The hints ("Higher/Lower") are wrong. Fix them.
-4. **Refactor & Test.** - Move the logic into `logic_utils.py`.
-   - Run `pytest` in your terminal.
-   - Keep fixing until all tests pass!
-
-## 📝 Document Your Experience
-
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+Core functions were moved from `app.py` into `logic_utils.py` so they could be tested independently. The comparison logic now uses integers consistently, and higher or lower hints point in the correct direction. Input parsing rejects invalid and decimal input, wrong guesses consistently subtract points, and attempts increase only for valid in-range guesses. Streamlit session state now resets correctly for New Game and difficulty changes, and state-dependent information is rendered after processing so it updates immediately.
 
 ## 📸 Demo Walkthrough
 
-Describe your fixed game in numbered steps so a reader can follow along without watching a video:
-
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
-
-**Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
+1. The user selects Normal difficulty, which displays the range 1–100 and the allowed number of attempts.
+2. The user enters `40`, which is lower than the secret number.
+3. The game returns `"Too Low"` and tells the user to go higher.
+4. The score decreases by five points, and the attempt count and history update immediately.
+5. The user enters `70`, which is higher than the secret number.
+6. The game returns `"Too High"` and tells the user to go lower.
+7. The user enters the exact secret number.
+8. The game displays the winning message, awards the correct score, and prevents additional guesses until a new game begins.
+9. The user clicks New Game, and the attempts, score, history, status, and secret number reset.
 
 ## 🧪 Test Results
 
 ```
-# Paste your pytest output here, e.g.:
-# pytest tests/
-# ========================= X passed in 0.XXs =========================
+16 passed in 0.02s
 ```
+
+The automated tests cover winning, higher and lower hints, numeric comparisons, input parsing, incorrect-score behavior, and difficulty ranges.
 
 ## 🚀 Stretch Features
 
-- [ ] [If you choose to complete Challenge 4, describe the Enhanced UI changes here — a screenshot is optional]
+* [x] Added additional edge-case tests for numeric ordering, invalid input, whitespace, decimals, score behavior, and difficulty ranges.

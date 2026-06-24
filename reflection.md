@@ -42,30 +42,23 @@ Document at least 3 bugs you found. Add rows as needed.
 
 ## 2. How did you use AI as a teammate?
 
-- Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)?
-- Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result).
-- Give one example of an AI suggestion that was incorrect or misleading (including what the AI suggested and how you verified the result).
+I used Claude in VS Code to inspect the project, explain the bugs, propose focused repairs, and create pytest tests. One correct Claude suggestion was that the higher and lower hint messages were paired with the wrong outcomes inside `check_guess()`. I verified this by tracing a guess of `999`, reviewing the code change, running pytest, and confirming in the Streamlit game that a high guess now says to go lower. One misleading statement was that a correct guess on an even attempt would not be recognized as a win. After I asked Claude to trace a secret and guess of `42`, it clarified that the first equality check fails because the types differ, but the fallback equality check still returns `"Win"`; the actual bug was the unreliable string ordering used for incorrect guesses.
 
 ---
 
 ## 3. Debugging and testing your fixes
 
-- How did you decide whether a bug was really fixed?
-- Describe at least one test you ran (manual or using pytest)  
-  and what it showed you about your code.
-- Did AI help you design or understand any tests? How?
+I considered a repair complete only after reviewing the code diff, running automated tests, and reproducing the corrected behavior in the live game. Claude helped create tests for winning guesses, high and low hints, numeric ordering, input parsing, score changes, and difficulty ranges. I ran `.venv/bin/python -m pytest -q`, and the final result showed ` 16 passed in .02 secs` with no failures. I also tested the Streamlit application manually and confirmed that attempts, score, history, hints, input validation, difficulty changes, and New Game resets behaved correctly.
 
 ---
 
 ## 4. What did you learn about Streamlit and state?
 
-- How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
+Streamlit reruns the entire Python script from top to bottom whenever the user interacts with a widget. Regular variables can be recreated during each rerun, while `st.session_state` stores information such as the secret number, attempts, score, history, and game status across reruns. I also learned that source order affects what the user sees: values rendered before state updates can appear one interaction behind. Using session state carefully and rendering state-dependent information after processing the input keeps the interface synchronized.
 
 ---
 
 ## 5. Looking ahead: your developer habits
 
-- What is one habit or strategy from this project that you want to reuse in future labs or projects?
-  - This could be a testing habit, a prompting strategy, or a way you used Git.
-- What is one thing you would do differently next time you work with AI on a coding task?
-- In one or two sentences, describe how this project changed the way you think about AI generated code.
+One habit I want to reuse is fixing one bug at a time, writing a focused test for it, and reviewing the AI-generated diff before accepting any changes. Next time, I would give the AI narrower instructions earlier and ask it to preserve unrelated files and behavior explicitly. This project showed me that AI-generated code and explanations can be helpful but still contain incorrect assumptions or imprecise wording. I should treat AI output as a proposal that must be tested and reviewed, not as automatically correct code.
+
